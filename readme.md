@@ -3,6 +3,6 @@ RatingStar-HTML5
 
 *developing*
 
-- [ ] WebApp
-- [ ] Cordova
+- [x] WebApp
+- [x] Cordova
 - [ ] UnitTest
