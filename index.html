@@ -2,43 +2,135 @@
 <html>
   <head>
   	<title>RatingStar-HTML5</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.5, user-scalable=no" />
+    <!--
+  	<link rel="stylesheet" href="css/blue.min.css" />
+  	<link rel="stylesheet" href="css/jquery.mobile.structure-1.3.0.min.css" />
+    -->
   	<link rel="stylesheet" href="css/jquery.mobile-1.3.0.min.css" />
-  	<script src="js/jquery-1.9.1.min.js"></script>
-  	<script src="js/jquery.mobile-1.3.0.min.js"></script>
   	<style type="text/css">
-* { margin:0; padding:0; }
-label  { display: block; }
-div { text-align: center; background-color:#61aae2;}
-.header { background-color:#1e95e5;}
-#score { font-size: 55pt; }
+label  { display: block; padding-top: 1em; }
+div { text-align: center; }
+.header { background-color:#1e95e5; }
+.header p { font-size: 2em; }
+#score { 
+  font-size: 6em; color: red; font-weight: bold;
+  padding-bottom: 1em;
+}
   	</style>
   </head>
   <body>
   	<!-- Home Page -->
-  	<div data-role="page" id="home">
-  	  <div data-role="header" class="header">
-  	  	<h1>Home</h1>
-  	  </div>
+  	<div data-role="page" id="home" class="page">
+  	  <div data-role="header" role="banner" class="header"></div>
   	  <div data-role="content">
   	    <label id="score">100</label>
-  	    <a data-rel="dialog" data-transition="pop" href="score.html">Score!</a>
+        <div class="ui-grid-b">
+          <div class="ui-block-a"><button class="btn-score">打分</button></div>
+          <div class="ui-block-b"><button class="btn-update">修改</button></div>
+          <div class="ui-block-c"><button class="btn-send">发送</button></div>
+        </div>
+  	  </div>
+  	</div>
+
+  	<!-- Config Page -->
+  	<div data-role="page" id="config" class="page">
+  	  <div data-role="header" role="banner" class="header"></div>
+  	  <div data-role="content">
+        <div class="ui-grid-a">
+          <div class="ui-block-a"><label for="ip_addr">服务器地址:</label></div>
+          <div class="ui-block-b"><input type="text" id="ip_addr" name="ip_addr" value="" /></div>
+          <div class="ui-block-a"><label for="username">评分人姓名:</label></div>
+          <div class="ui-block-b"><input type="text" id="username" name="username" value="" /></div>
+          <div class="ui-block-a"><button class="btn-yes">确定</button></div>
+          <div class="ui-block-b"><button class="btn-no">清空</button></div>
+        </div>
   	  </div>
   	</div>
 
   	<!-- About Page -->
-  	<div data-role="page" id="about">
-  	  <div data-role="header" class="header">
-  	  	<h1>About</h1>
-  	  </div>
+  	<div data-role="page" id="about" class="page">
+  	  <div data-role="header" class="header"></div>
   	  <div data-role="content">
   	  	<p>RatingStar-HTML5 is a Jquery Mobile Based Application!</p>
+        <p>此应用用来进行网内高质量高体验的评分活动!</p>
   	  </div>
   	</div>
-
-  </body>
+  <script src="js/underscore-min.js"></script>
+  <script src="js/jquery-1.9.1.min.js"></script>
+  <script src="js/jquery.mobile-1.3.0.min.js"></script>
+  <script src="js/socket.io.min.js"></script>
   <script>
 $(function(){
-  //todo
+    var app = {
+      title: '评分系统'
+    };
+
+    // browser check
+    if(!(window.localStorage)){
+      alert("您的浏览器不支持此应用,请升级!");
+      return false;
+    }
+
+    (function(){
+      // config check
+      if(!localStorage.ip_addr){
+        window.location.hash = 'config';
+      }
+
+      //render the underscore template
+      var header_template = _.template($('#header').html());
+      $('.header').html(header_template({title: app.title}));
+
+      $('#ip_addr').attr('value', localStorage.ip_addr);
+      $('#username').attr('value', localStorage.username);
+    })();
+
+    // event handler
+    $('#score, .btn-score, .btn-update').on('click', function(e){
+      e.preventDefault();
+      var score = prompt("请输入您的分数(1-100之内)", "");
+      if(score){
+        score = parseInt(score);
+        if(_.isNumber(score) && score>0 && score<100){
+          $('#score').text(score);
+        }else{
+          alert("分数值无效!请谨慎评分!");
+        }
+      } 
+    });
+    $('button.btn-send').on('click', function(e){
+      e.preventDefault();
+      // send
+      var socket = io.connect(localStorage.ip_addr + ':30301');
+      socket.emit('score', {score: $('#score').text()});
+      socket.on('res', function(d){ console.log(d); });
+    });
+    $('button.btn-yes').on('click', function(e){
+      e.preventDefault();
+      var ip_addr = $('#ip_addr').val().trim();
+      var username = $('#username').val().trim();
+
+      localStorage.ip_addr = ip_addr;
+      localStorage.username = username;
+
+      alert('保存成功!');
+      window.location.hash = '';
+    });
+    $('button.btn-no').on('click', function(e){
+      e.preventDefault();
+      if(confirm("是否清空所有设置?")){
+        localStorage.removeItem("ip_addr");
+        localStorage.removeItem("username");
+        
+        $('input').val('');
+      }
+    });
 });
   </script>
+  <script type="text/template" id="header">
+<p><%= title %></p>
+  </script>
+  </body>
 </html>
