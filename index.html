@@ -85,20 +85,22 @@ $(function(){
     (function(){
       // config check
       if(!localStorage.ip_addr){
-        window.location.hash = 'config';
+        $.mobile.navigate('#config');
       }
-
 
       $('.header-title').text(app.title);
       $('#ip_addr').attr('value', localStorage.ip_addr);
       $('#username').attr('value', localStorage.username);
-
-      if(window.location.hash == '#config'){
-        $('.header-tool').hide();
-      }
     })();
 
     // event handler
+    $(window).on('navigate', function(event, data){
+      if(window.location.hash == '#config'){
+        $('.header-tool').hide(); 
+      }else{
+        $('.header-tool').show();
+      }
+    });
     var rating = function(e){
       e.preventDefault();
       var score = prompt("请输入您的分数(1-100之内)", "");
@@ -130,7 +132,7 @@ $(function(){
       localStorage.username = username;
 
       alert('保存成功!');
-      window.location.hash = '';
+      $.mobile.navigate('#');
     });
     $('button.btn-no').on('click', function(e){
       e.preventDefault();
