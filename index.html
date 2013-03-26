@@ -9,12 +9,15 @@
   	<link rel="stylesheet" href="css/jquery.mobile.structure-1.3.0.min.css" />
     -->
   	<link rel="stylesheet" href="css/jquery.mobile-1.3.0.min.css" />
+    <link href='http://fonts.googleapis.com/css?family=Handlee' rel='stylesheet' type='text/css'>
   	<style type="text/css">
 label  { display: block; padding-top: 1em; }
 div { text-align: center; }
 .header { background-color:#1e95e5; }
-.header p { font-size: 2em; }
+.header p { font-size: 1em; }
+.header-tool { top: 9px !important; }
 #score { 
+  font-family: 'Handlee', cursive;
   font-size: 6em; color: red; font-weight: bold;
   padding-bottom: 1em;
 }
@@ -23,7 +26,9 @@ div { text-align: center; }
   <body>
   	<!-- Home Page -->
   	<div data-role="page" id="home" class="page">
-  	  <div data-role="header" role="banner" class="header"></div>
+  	  <div data-role="header" role="banner" class="header">
+        <a href="#config" data-icon="bars" class="header-tool ui-btn-right">配置</a><p class="header-title">RatingStar-HTML5</p>
+      </div>
   	  <div data-role="content">
   	    <label id="score">100</label>
         <div class="ui-grid-b">
@@ -36,7 +41,9 @@ div { text-align: center; }
 
   	<!-- Config Page -->
   	<div data-role="page" id="config" class="page">
-  	  <div data-role="header" role="banner" class="header"></div>
+  	  <div data-role="header" role="banner" class="header">
+        <a href="#config" data-icon="bars" class="header-tool ui-btn-right">配置</a><p class="header-title">RatingStar-HTML5</p>
+      </div>
   	  <div data-role="content">
         <div class="ui-grid-a">
           <div class="ui-block-a"><label for="ip_addr">服务器地址:</label></div>
@@ -51,7 +58,9 @@ div { text-align: center; }
 
   	<!-- About Page -->
   	<div data-role="page" id="about" class="page">
-  	  <div data-role="header" class="header"></div>
+  	  <div data-role="header" class="header">
+        <a href="#config" data-icon="bars" class="header-tool ui-btn-right">配置</a><p class="header-title">RatingStar-HTML5</p>
+      </div>
   	  <div data-role="content">
   	  	<p>RatingStar-HTML5 is a Jquery Mobile Based Application!</p>
         <p>此应用用来进行网内高质量高体验的评分活动!</p>
@@ -79,16 +88,18 @@ $(function(){
         window.location.hash = 'config';
       }
 
-      //render the underscore template
-      var header_template = _.template($('#header').html());
-      $('.header').html(header_template({title: app.title}));
 
+      $('.header-title').val(app.title);
       $('#ip_addr').attr('value', localStorage.ip_addr);
       $('#username').attr('value', localStorage.username);
+
+      if(window.location.hash == '#config'){
+        $('.header-tool').hide();
+      }
     })();
 
     // event handler
-    $('#score, .btn-score, .btn-update').on('click', function(e){
+    var rating = function(e){
       e.preventDefault();
       var score = prompt("请输入您的分数(1-100之内)", "");
       if(score){
@@ -99,12 +110,15 @@ $(function(){
           alert("分数值无效!请谨慎评分!");
         }
       } 
-    });
+      return false;
+    };
+    $('#score').on('tap', rating);
+    $('#score, .btn-score, .btn-update').on('click', rating);
     $('button.btn-send').on('click', function(e){
       e.preventDefault();
       // send
       var socket = io.connect(localStorage.ip_addr + ':30301');
-      socket.emit('score', {score: $('#score').text()});
+      socket.emit('score', {score: $('#score').text(), username: localStorage.username});
       socket.on('res', function(d){ console.log(d); });
     });
     $('button.btn-yes').on('click', function(e){
@@ -128,9 +142,6 @@ $(function(){
       }
     });
 });
-  </script>
-  <script type="text/template" id="header">
-<p><%= title %></p>
   </script>
   </body>
 </html>
