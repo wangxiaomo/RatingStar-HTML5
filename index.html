@@ -27,7 +27,7 @@ div { text-align: center; }
   	<!-- Home Page -->
   	<div data-role="page" id="home" class="page">
   	  <div data-role="header" role="banner" class="header">
-        <a href="#config" data-icon="bars" class="header-tool ui-btn-right">配置</a><p class="header-title">RatingStar-HTML5</p>
+        <a href="#config" data-icon="bars" class="header-tool header-tool-config ui-btn-right">配置</a><p class="header-title">RatingStar-HTML5</p>
       </div>
   	  <div data-role="content">
   	    <label id="score">100</label>
@@ -100,6 +100,11 @@ $(function(){
       }else{
         $('.header-tool').show();
       }
+    });
+    $('.header-tool-config').on('click', function(e){
+      e.preventDefault();
+      $.mobile.navigate('#config');
+      return false;
     });
     var rating = function(e){
       e.preventDefault();
