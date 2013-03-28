@@ -8,14 +8,34 @@
   	<link rel="stylesheet" href="css/blue.min.css" />
   	<link rel="stylesheet" href="css/jquery.mobile.structure-1.3.0.min.css" />
     -->
-  	<link rel="stylesheet" href="css/jquery.mobile-1.3.0.min.css" />
     <link href='http://fonts.googleapis.com/css?family=Handlee' rel='stylesheet' type='text/css'>
+    <script src="js/underscore-min.js"></script>
+    <script src="js/jquery-1.9.1.min.js"></script>
+    <script>
+    $(document).on('mobileinit', function(){
+      $.mobile.defaultPageTransition = 'slide';
+      $.mobile.defaultDialogTransition = 'flow';
+    });
+    </script>
+    <script src="js/jquery.mobile-1.3.0.min.js"></script>
+  	<link rel="stylesheet" href="css/jquery.mobile-1.3.0.min.css" />
+    <!-- jquery mobile 1.0
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.css" />
+    <script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.0.1/jquery.mobile-1.0.1.min.js"></script>
+    -->
+    <script src="js/socket.io.min.js"></script>
   	<style type="text/css">
 label  { display: block; padding-top: 1em; }
 div { text-align: center; }
 .header { background-color:#1e95e5; }
 .header p { font-size: 1em; }
 .header-tool { top: 9px !important; }
+.ui-page {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+}
 #score { 
   font-family: 'Handlee', cursive;
   font-size: 6em; color: red; font-weight: bold;
@@ -25,7 +45,7 @@ div { text-align: center; }
   </head>
   <body>
   	<!-- Home Page -->
-  	<div data-role="page" id="home" class="page">
+  	<div data-role="page" data-dom-cache="true" id="home" class="page">
   	  <div data-role="header" role="banner" class="header">
         <a href="#config" data-icon="bars" class="header-tool header-tool-config ui-btn-right">配置</a><p class="header-title">RatingStar-HTML5</p>
       </div>
@@ -40,7 +60,7 @@ div { text-align: center; }
   	</div>
 
   	<!-- Config Page -->
-  	<div data-role="page" id="config" class="page">
+  	<div data-role="page" data-dom-cache="true" id="config" class="page">
   	  <div data-role="header" role="banner" class="header">
         <a href="#config" data-icon="bars" class="header-tool ui-btn-right">配置</a><p class="header-title">RatingStar-HTML5</p>
       </div>
@@ -66,10 +86,6 @@ div { text-align: center; }
         <p>此应用用来进行网内高质量高体验的评分活动!</p>
   	  </div>
   	</div>
-  <script src="js/underscore-min.js"></script>
-  <script src="js/jquery-1.9.1.min.js"></script>
-  <script src="js/jquery.mobile-1.3.0.min.js"></script>
-  <script src="js/socket.io.min.js"></script>
   <script>
 $(function(){
     var app = {
@@ -126,6 +142,7 @@ $(function(){
       // send
       var socket = io.connect(localStorage.ip_addr + ':30301');
       socket.emit('score', {score: $('#score').text(), username: localStorage.username});
+      //socket.send("Hello");
       socket.on('res', function(d){ console.log(d); });
     });
     $('button.btn-yes').on('click', function(e){
